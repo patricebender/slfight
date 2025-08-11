@@ -31,10 +31,11 @@ export class TravelService extends cds.ApplicationService { init() {
 
 
   // Ensure BeginDate is not before today and not after EndDate.
-  this.before ('SAVE', Travel, req => {
+  this.before ('UPDATE', Travel.drafts, req => {
     const { BeginDate, EndDate } = req.data
-    if (BeginDate < today()) req.error (400, `Begin Date must not be before today.`, 'in/BeginDate')
-    if (BeginDate > EndDate) req.error (400, `End Date must be after Begin Date.`, 'in/EndDate')
+    // if (BeginDate < today()) req.error (400, `Begin Date must not be before today.`, 'in/BeginDate') > crash
+    // if (BeginDate < today()) req.error ({ code: 400, message: `Begin Date must not be before today.`, target: 'in/BeginDate' }) > message lost
+    if (BeginDate < today()) req.error ({ message: `Begin Date must not be before today.`, target: 'in/BeginDate', '@Common.additionalTargets': ['in/EndDate'] }) //> better (if prefix is stripped)
   })
 
 
